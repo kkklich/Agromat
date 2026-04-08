@@ -1,0 +1,41 @@
+name: Build and Deploy Angular App to Cyberfolks
+
+on:
+  push:
+    branches:
+      - main  # Change to 'master' if your main branch is called master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Grab the latest code from your repository
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 2. Set up Node.js (required to build Angular)
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20' # Make sure this matches your project's Node version
+
+    # 3. Install your project dependencies
+    - name: Install Dependencies
+      run: npm ci
+
+    # 4. Build the Angular project for production
+    - name: Build Angular Project
+      run: npm run build -- --configuration production --base-href /samiswoi/
+
+    # 5. Upload the compiled files to Cyberfolks
+    - name: Deploy to Cyberfolks via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./dist/agromat/browser/ 
+        # Make sure this points to the correct public folder on Cyberfolks
+        server-dir: /home/sites/krzysztofklich.pl/public_html/samiswoi/
+       
