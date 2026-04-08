@@ -39,9 +39,21 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
+
+
+# FIX 1: Explicitly use FTPS (Secure FTP)
+        protocol: ftps
+        
+        # FIX 2: Stop the server from closing the connection too early
+        # This is the most common fix for ECONNRESET on Cyberfolks/DirectAdmin
+        dangerous-clean-slate: false
+        
+        # FIX 3: Ensure we are using the subfolder correctly
+        local-dir: ./sami-swoi-app/dist/sami-swoi-app/browser/ 
+        server-dir: /sites/krzysztofklich.pl/public_html/samiswoi/
         
         # Note the path starts with the subfolder name
-        local-dir: ./sami-swoi-app/dist/sami-swoi-app/browser/ 
+        # //local-dir: ./sami-swoi-app/dist/sami-swoi-app/browser/ 
         
         # Your target path on the server
-        server-dir: /home/sites/krzysztofklich.pl/public_html/samiswoi/
+        # server-dir: /sites/krzysztofklich.pl/public_html/samiswoi/
