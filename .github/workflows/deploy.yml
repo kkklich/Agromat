@@ -3,39 +3,45 @@ name: Build and Deploy Angular App to Cyberfolks
 on:
   push:
     branches:
-      - main  # Change to 'master' if your main branch is called master
+      - main 
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    # This tells GitHub to run all 'run' steps inside your subfolder
+    defaults:
+      run:
+        working-directory: sami-swoi-app
+
     steps:
-    # 1. Grab the latest code from your repository
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # 2. Set up Node.js (required to build Angular)
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20' # Make sure this matches your project's Node version
+        node-version: '20'
 
-    # 3. Install your project dependencies
     - name: Install Dependencies
-      run: npm ci
+      # Ensure you have committed the package-lock.json inside the sami-swoi-app folder!
+      run: npm ci 
 
-    # 4. Build the Angular project for production
     - name: Build Angular Project
       run: npm run build -- --configuration production --base-href /samiswoi/
 
-    # 5. Upload the compiled files to Cyberfolks
     - name: Deploy to Cyberfolks via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./dist/agromat/browser/ 
-        # Make sure this points to the correct public folder on Cyberfolks
+        
+        # Note the path starts with the subfolder name
+        local-dir: ./sami-swoi-app/dist/sami-swoi-app/browser/ 
+        
+        # Your target path on the server
         server-dir: /home/sites/krzysztofklich.pl/public_html/samiswoi/
-       
